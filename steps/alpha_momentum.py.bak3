@@ -1,0 +1,79 @@
+"""Momentum: hold what has been going up
+print(">>> ALPHA_MOMENTUM_MODIFIED_VERSION_LOADED <<<")
+
+The oldest cross-sectional rule there is: rank by trailing return and hold the
+top names, equally weighted. Long only, weights sum to 1.
+
+Modified:
+1. Absolute momentum filter: a symbol only qualifies if its trailing return
+   is positive. In a broad drawdown, this can mean fewer than top_n names
+   qualify (or none) -- the alpha then holds less than a full book, i.e.
+   partially or fully in cash, instead of forcing a pick among falling names.
+2. Recent-crash filter: still excludes names that fell sharply in a short
+   recent window, to avoid a dead-cat bounce read as momentum.
+
+Wired by `qanat alphas add momentum`. It is an ordinary step -- edit it, or throw it
+away and write your own. That is the point of having it.
+"""
+
+import pandas as pd
+print(">>>>> ALPHA MOMENTUM FILE VERSION CHECK <<<<<")
+
+
+def run(ctx):
+    o = ctx.options
+    sym, date, px = o.get("symbol_column", "symbol"), o.get("date_column", "date"), \
+        o.get("price_column", "close")
+    lookback, top_n = int(o.get("lookback", 60)), int(o.get("top_n", 4))
+    crash_lookback = int(o.get("crash_lookback", 5))
+    crash_threshold = float(o.get("crash_threshold", -0.15))
+
+    bars = ctx.read(o["reads"]).sort_values(date)
+    print(f">>> BARS DATE RANGE: {bars[date].min()} ~ {bars[date].max()}, rows={len(bars)}")
+    allowed = set(ctx.universe()[sym if sym in ctx.universe().columns else "symbol"])
+    bars = bars[bars[sym].isin(allowed)]
+
+    rows = []
+    excluded_crash = []
+    excluded_negative = 0
+    as_of_val = None
+    for name, g in bars.groupby(sym):
+        if len(g) <= lookback:
+            continue
+        past, now = g[px].iloc[-lookback - 1], g[px].iloc[-1]
+        if not (past and past > 0):
+            continue
+
+        as_of_val = g[date].iloc[-1]
+        score = now / past - 1.0
+
+        # absolute momentum: only positive trailing return qualifies
+        if score <= 0:
+            excluded_negative += 1
+            continue
+
+        # crash filter: exclude names that fell sharply in a short recent window
+        if len(g) > crash_lookback:
+            recent_past = g[px].iloc[-crash_lookback - 1]
+            if recent_past and recent_past > 0:
+                recent_return = now / recent_past - 1.0
+                if recent_return <= crash_threshold:
+                    excluded_crash.append(name)
+                    continue
+
+        rows.append({"symbol": name, "score": score, "as_of": as_of_val})
+
+    if excluded_crash:
+        ctx.log(f"excluded {len(excluded_crash)} on recent crash filter: {excluded_crash}", "info")
+    ctx.log(f"excluded {excluded_negative} on absolute momentum filter (score <= 0)", "info")
+
+    if len(rows) == 0:
+        ctx.log("no symbol qualifies (all negative or crashed) -- fully in cash", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    n_hold = min(top_n, len(rows))
+    picked = pd.DataFrame(rows).nlargest(n_hold, "score")
+    # equal weight among qualifying names; if fewer than top_n qualify,
+    # the remainder is implicitly uninvested (weights sum to less than 1)
+    picked["weight"] = 1.0 / top_n
+    return picked[["symbol", "weight", "score", "as_of"]].reset_index(drop=True)

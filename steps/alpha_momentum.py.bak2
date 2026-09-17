@@ -1,0 +1,59 @@
+"""Momentum: hold what has been going up
+
+The oldest cross-sectional rule there is: rank by trailing return and hold the
+top names, equally weighted. Long only, weights sum to 1.
+
+Modified: excludes symbols that crashed sharply in the recent window
+(crash_lookback / crash_threshold), to avoid holding names caught in an
+idiosyncratic blowup (bankruptcy, fraud, etc.) just because their longer
+trailing return still looks good.
+
+Wired by `qanat alphas add momentum`. It is an ordinary step -- edit it, or throw it
+away and write your own. That is the point of having it.
+"""
+
+import pandas as pd
+
+
+def run(ctx):
+    o = ctx.options
+    sym, date, px = o.get("symbol_column", "symbol"), o.get("date_column", "date"), \
+        o.get("price_column", "close")
+    lookback, top_n = int(o.get("lookback", 60)), int(o.get("top_n", 4))
+    crash_lookback = int(o.get("crash_lookback", 5))
+    crash_threshold = float(o.get("crash_threshold", -0.15))  # -15%
+
+    bars = ctx.read(o["reads"]).sort_values(date)
+    allowed = set(ctx.universe()[sym if sym in ctx.universe().columns else "symbol"])
+    bars = bars[bars[sym].isin(allowed)]
+
+    rows = []
+    excluded_crash = []
+    for name, g in bars.groupby(sym):
+        if len(g) <= lookback:
+            continue
+        past, now = g[px].iloc[-lookback - 1], g[px].iloc[-1]
+        if not (past and past > 0):
+            continue
+
+        # crash filter: check recent short-window return
+        if len(g) > crash_lookback:
+            recent_past = g[px].iloc[-crash_lookback - 1]
+            if recent_past and recent_past > 0:
+                recent_return = now / recent_past - 1.0
+                if recent_return <= crash_threshold:
+                    excluded_crash.append(name)
+                    continue
+
+        rows.append({"symbol": name, "score": now / past - 1.0, "as_of": g[date].iloc[-1]})
+
+    if excluded_crash:
+        ctx.log(f"excluded {len(excluded_crash)} symbols on recent crash filter: {excluded_crash}", "info")
+
+    if len(rows) < top_n:
+        ctx.log(f"only {len(rows)} symbols have {lookback} days of history after filtering", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    picked = pd.DataFrame(rows).nlargest(top_n, "score")
+    picked["weight"] = 1.0 / len(picked)
+    return picked[["symbol", "weight", "score", "as_of"]].reset_index(drop=True)

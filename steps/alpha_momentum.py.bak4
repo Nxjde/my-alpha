@@ -1,0 +1,85 @@
+"""Momentum: hold what has been going up
+
+The oldest cross-sectional rule there is: rank by trailing return and hold the
+top names, equally weighted. Long only, weights sum to 1.
+
+Modified:
+1. Absolute momentum filter: a symbol only qualifies if its trailing return
+   is positive. In a broad drawdown this can mean fewer than top_n names
+   qualify -- the alpha then holds less than a full book (partial cash)
+   instead of forcing a pick among falling names.
+2. Volatility filter: excludes the most volatile names in the universe at
+   each rebalance (top `vol_exclude_pct` by trailing daily-return stdev).
+   This targets names caught in an idiosyncratic blowup (e.g. a name that
+   crashed months ago on bad news and is now whipsawing on speculation) --
+   a crash-lookback filter alone does not catch this, because the recent
+   move can be sharply positive even though the name is still dangerous.
+
+Wired by `qanat alphas add momentum`. It is an ordinary step -- edit it, or throw it
+away and write your own. That is the point of having it.
+"""
+
+import pandas as pd
+
+
+def run(ctx):
+    o = ctx.options
+    sym, date, px = o.get("symbol_column", "symbol"), o.get("date_column", "date"), \
+        o.get("price_column", "close")
+    lookback, top_n = int(o.get("lookback", 60)), int(o.get("top_n", 4))
+    vol_lookback = int(o.get("vol_lookback", 60))
+    vol_exclude_pct = float(o.get("vol_exclude_pct", 0.10))  # exclude top 10% most volatile
+
+    bars = ctx.read(o["reads"]).sort_values(date)
+    allowed = set(ctx.universe()[sym if sym in ctx.universe().columns else "symbol"])
+    bars = bars[bars[sym].isin(allowed)]
+
+    candidates = []
+    as_of_val = None
+    for name, g in bars.groupby(sym):
+        if len(g) <= lookback:
+            continue
+        past, now = g[px].iloc[-lookback - 1], g[px].iloc[-1]
+        if not (past and past > 0):
+            continue
+
+        as_of_val = g[date].iloc[-1]
+        score = now / past - 1.0
+
+        # daily-return volatility over the trailing window, for the vol filter below
+        vol_window = g[px].iloc[-vol_lookback - 1:] if len(g) > vol_lookback else g[px]
+        daily_returns = vol_window.pct_change().dropna()
+        volatility = float(daily_returns.std()) if len(daily_returns) > 1 else None
+
+        candidates.append({"symbol": name, "score": score, "as_of": as_of_val, "volatility": volatility})
+
+    if not candidates:
+        ctx.log("no symbols have enough history", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    df = pd.DataFrame(candidates)
+
+    # volatility filter: drop the most volatile names in this universe, this rebalance
+    with_vol = df[df["volatility"].notna()]
+    excluded_vol_names = []
+    if len(with_vol) > 0 and vol_exclude_pct > 0:
+        cutoff = with_vol["volatility"].quantile(1 - vol_exclude_pct)
+        excluded_vol_names = with_vol[with_vol["volatility"] >= cutoff]["symbol"].tolist()
+        df = df[~df["symbol"].isin(excluded_vol_names)]
+
+    # absolute momentum: only positive trailing return qualifies
+    before_abs = len(df)
+    df = df[df["score"] > 0]
+    excluded_negative = before_abs - len(df)
+
+    ctx.log(f"excluded {len(excluded_vol_names)} on volatility filter (top {vol_exclude_pct:.0%}); "
+            f"excluded {excluded_negative} on absolute momentum filter", "info")
+
+    if len(df) == 0:
+        ctx.log("no symbol qualifies -- fully in cash", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    n_hold = min(top_n, len(df))
+    picked = df.nlargest(n_hold, "score").copy()
+    picked["weight"] = 1.0 / top_n
+    return picked[["symbol", "weight", "score", "as_of"]].reset_index(drop=True)

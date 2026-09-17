@@ -1,0 +1,8 @@
+data/*.duckdb
+data/*.duckdb.wal
+data/real_prices.csv
+data/sp500_raw.csv
+__pycache__/
+*.pyc
+full_output.txt
+/tmp/*.txt

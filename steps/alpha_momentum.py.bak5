@@ -1,0 +1,100 @@
+"""Momentum: hold what has been going up
+
+The oldest cross-sectional rule there is: rank by trailing return and hold the
+top names, equally weighted. Long only, weights sum to 1.
+
+Modified:
+1. Absolute momentum filter: a symbol only qualifies if its trailing return
+   is positive.
+2. Volatility filter: excludes the most volatile names in the universe at
+   each rebalance (top `vol_exclude_pct` by trailing daily-return stdev).
+3. Market regime filter: if the benchmark (regime_symbol, default SPY) is
+   below its own trailing moving average (regime_ma_window days), the whole
+   book goes to cash. Stock-level filters cannot fix a broad drawdown --
+   momentum has no way to tell "the best 4 names in a falling market" from
+   "4 names worth holding". This filter answers a different question first:
+   should the book be invested at all right now.
+
+Wired by `qanat alphas add momentum`. It is an ordinary step -- edit it, or throw it
+away and write your own. That is the point of having it.
+"""
+
+import pandas as pd
+
+
+def run(ctx):
+    o = ctx.options
+    sym, date, px = o.get("symbol_column", "symbol"), o.get("date_column", "date"), \
+        o.get("price_column", "close")
+    lookback, top_n = int(o.get("lookback", 60)), int(o.get("top_n", 4))
+    vol_lookback = int(o.get("vol_lookback", 60))
+    vol_exclude_pct = float(o.get("vol_exclude_pct", 0.10))
+    regime_symbol = o.get("regime_symbol", "SPY")
+    regime_ma_window = int(o.get("regime_ma_window", 200))
+
+    bars = ctx.read(o["reads"]).sort_values(date)
+
+    # --- market regime check, using the benchmark regardless of universe filtering ---
+    bench = bars[bars[sym] == regime_symbol]
+    as_of_val = bars[date].max()
+    if len(bench) >= regime_ma_window:
+        bench_now = bench[px].iloc[-1]
+        bench_ma = bench[px].iloc[-regime_ma_window:].mean()
+        if bench_now < bench_ma:
+            ctx.log(f"regime filter: {regime_symbol} {bench_now:.2f} below its "
+                     f"{regime_ma_window}d MA {bench_ma:.2f} -- book goes to cash", "info")
+            return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+    else:
+        ctx.log(f"regime filter: not enough history for {regime_symbol} "
+                 f"{regime_ma_window}d MA yet, skipping regime check", "info")
+
+    # --- stock selection, as before ---
+    allowed = set(ctx.universe()[sym if sym in ctx.universe().columns else "symbol"])
+    allowed.discard(regime_symbol)  # never hold the benchmark itself as a pick
+    bars = bars[bars[sym].isin(allowed)]
+
+    candidates = []
+    for name, g in bars.groupby(sym):
+        if len(g) <= lookback:
+            continue
+        past, now = g[px].iloc[-lookback - 1], g[px].iloc[-1]
+        if not (past and past > 0):
+            continue
+
+        as_of_val = g[date].iloc[-1]
+        score = now / past - 1.0
+
+        vol_window = g[px].iloc[-vol_lookback - 1:] if len(g) > vol_lookback else g[px]
+        daily_returns = vol_window.pct_change().dropna()
+        volatility = float(daily_returns.std()) if len(daily_returns) > 1 else None
+
+        candidates.append({"symbol": name, "score": score, "as_of": as_of_val, "volatility": volatility})
+
+    if not candidates:
+        ctx.log("no symbols have enough history", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    df = pd.DataFrame(candidates)
+
+    with_vol = df[df["volatility"].notna()]
+    excluded_vol_names = []
+    if len(with_vol) > 0 and vol_exclude_pct > 0:
+        cutoff = with_vol["volatility"].quantile(1 - vol_exclude_pct)
+        excluded_vol_names = with_vol[with_vol["volatility"] >= cutoff]["symbol"].tolist()
+        df = df[~df["symbol"].isin(excluded_vol_names)]
+
+    before_abs = len(df)
+    df = df[df["score"] > 0]
+    excluded_negative = before_abs - len(df)
+
+    ctx.log(f"excluded {len(excluded_vol_names)} on volatility filter (top {vol_exclude_pct:.0%}); "
+            f"excluded {excluded_negative} on absolute momentum filter", "info")
+
+    if len(df) == 0:
+        ctx.log("no symbol qualifies -- fully in cash", "warn")
+        return pd.DataFrame(columns=["symbol", "weight", "score", "as_of"])
+
+    n_hold = min(top_n, len(df))
+    picked = df.nlargest(n_hold, "score").copy()
+    picked["weight"] = 1.0 / top_n
+    return picked[["symbol", "weight", "score", "as_of"]].reset_index(drop=True)
