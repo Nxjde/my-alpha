@@ -16,7 +16,7 @@ for t in tests:
         "qanat", "backtest",
         "--from", t["from"], "--to", t["to"],
         "--alpha", "alpha_momentum,alpha_low_vol",
-        "--allocation", "momentum=2,low_vol=1",
+        "--allocation", "momentum=1,low_vol=1",
         "--split", t["split"],
         "--json", "--quiet", "--force"
     ]
