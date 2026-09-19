@@ -152,3 +152,41 @@ period별 net을 코드에서 직접 비율대로 재조정하며 복리 합산�
 **다음 TODO**: 2.5:1과 4:1 후보 중 하나를 확정하기 전에, BTCUSDT 프로젝트 때 쓴
 Go/No-Go 프레임워크 기준(permutation test, walk-forward)으로 유의성 검증 필요.
 지금까지는 구간당 단일 in/out split 결과일 뿐, 통계적 검증은 아직 안 됨.
+
+## Session update 2 (Go/No-Go validation of momentum+reversal ratios)
+
+Applied the BTCUSDT project's Go/No-Go framework (adapted: 5 macro-regime periods as
+folds instead of 4 walk-forward folds; permutation test on **gross only**, with
+fees/slippage held fixed as a non-flippable drag, since flipping net's sign was found
+to incorrectly let costs "become profit" under the null — this was a bug in the first
+version of the test, fixed before these results). 2000 permutations per fold,
+threshold p<0.05, pass requires positive net AND p<0.05 AND n>=20 periods; GO requires
+4-of-5 folds passing.
+
+**Result: all 5 tested ratios (1:1, 2.5:1, 3:1, 3.5:1, 4:1) passed GO (4-of-5 folds).**
+
+| ratio | avg out-of-sample | 2017-19 net | 2017-19 p-value |
+|---|---|---|---|
+| 1:1 | 49.1% | +31.9% | 0.063 (near-significant) |
+| 2.5:1 | 53.9% | +3.1% | 0.233 (not significant) |
+| 3:1 | 54.8% | -1.1% | 0.274 (fold FAILS) |
+| 3.5:1 | 55.5% | -4.3% | 0.314 (fold FAILS) |
+| 4:1 | 56.1% | -6.8% | 0.347 (fold FAILS) |
+
+**Key finding**: 1:1 is the only ratio with a near-significant directional edge in the
+worst regime (2017-19). All higher momentum-weighted ratios gain average return but
+lose statistical defensibility in that regime — the edge there becomes indistinguishable
+from noise (p=0.23-0.35). This mirrors momentum-alone's core weakness (regime
+dependency), so leaning too far toward momentum risks reintroducing the same problem
+the reversal hedge was meant to solve.
+
+**Tentative decision**: momentum=1,reversal=1 (1:1) as the primary candidate — it
+sacrifices ~5-7pp of average return vs 3:1-4:1, but is the only ratio that statistically
+defends the hedge's original purpose. 2.5:1-3:1 remain reasonable if betting that the
+2015-2025 regime distribution repeats.
+
+**Next TODO**: decide 1:1 vs 2.5:1+ based on risk preference; if proceeding, next
+steps are (a) out-of-sample paper validation going forward, (b) checking transaction
+cost sensitivity, (c) considering whether the permutation methodology itself needs
+peer review (period-level gross-sign flipping is a reasonable but non-standard choice
+vs. trade-level permutation used in the BTCUSDT project).
