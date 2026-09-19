@@ -94,3 +94,61 @@ momentum+low_vol보다 훨씬 강력한 헤지 관계로 보임 — 다음 세�
 - [ ] 이게 momentum+low_vol(1:1, 최선이었던 조합)보다 나은지 비교
 - [ ] 좋으면 3-알파 조합(momentum+reversal+low_vol)도 시도
 - [ ] neutral_momentum 알파도 아직 검증 안 됨 — 여유 되면 진행
+
+## Session update (momentum+reversal combo validation)
+
+**Correction to earlier assumption**: initially suspected `--allocation` (signal-blend)
+caused a "netting loss" vs a true capital-split. Verified by running momentum-only and
+reversal-only backtests separately and combining their per-period `net` values locally
+with fixed-weight rebalancing (see `sleeve_combine.py`). Results matched `--allocation`
+output almost exactly (e.g. 2017-19 out-of-sample at 3:1 was -1.0% via --allocation vs
+-1.1% via sleeve combine). Conclusion: `--allocation` does NOT lose value to netting —
+my earlier "expected value" comparison was wrong (simple arithmetic averaging of
+compounded period returns, not valid math). qanat's blending is trustworthy.
+
+**momentum:reversal ratio sweep, out-of-sample net by period**:
+
+|
+tail -40 STATE.md
+git add STATE.md sleeve_combine.py momentum_reversal_sweep.py
+git commit -m "momentum+reversal combo validation: sleeve combine confirms --allocation is correct, ratio sweep 1:1~4:1"
+git push
+Ctrl+C
+git diff STATE.md | head -50
+git checkout -- STATE.md
+tail -5 STATE.md
+cat >> STATE.md << 'EOF'
+
+## 세션 업데이트 (momentum+reversal 조합 검증)
+
+**이전 가설 정정**: `--allocation`(시그널 합성 방식)이 진짜 자본 분할 대비 "netting 손실"을
+낸다고 처음엔 의심했음. momentum·reversal을 각각 단독으로 backtest 돌린 뒤, 두 결과의
+period별 net을 코드에서 직접 비율대로 재조정하며 복리 합산해서 검증함 (`sleeve_combine.py`).
+결과가 `--allocation` 출력과 거의 정확히 일치함 (예: 2017-19 out-of-sample, 3:1 비율에서
+--allocation은 -1.0%, sleeve 합산은 -1.1%). 결론: `--allocation`은 netting으로 손실을
+내지 않음 — 이전에 "기대값과 다르다"고 계산했던 건 계산 실수였음 (복리로 불어난 구간
+수익률을 단순 산술평균 내는 건 애초에 틀린 계산법). qanat의 블렌딩 로직은 신뢰할 수 있음.
+
+**momentum:reversal 비율 스윕, 구간별 out-of-sample net**:
+
+| 비율 | 2017-19 | 2019-21 | 2021-23 | 2023-25 | 평균 |
+|---|---|---|---|---|---|
+| 1:1 | +31.9% | 68.1% | 64.8% | 47.7% | 49.1% |
+| 2:1 | +9.0% | 75.0% | 78.5% | 68.3% | 52.8% |
+| 2.5:1 | +3.1% | 76.8% | 82.3% | 74.5% | 53.9% |
+| 3:1 | -1.1% | 78.0% | 85.2% | 79.2% | 54.8% |
+| 3.5:1 | -4.3% | 78.9% | 87.4% | 82.9% | 55.5% |
+| 4:1 | -6.8% | 79.6% | 89.2% | 85.8% | 56.1% |
+
+트레이드오프: momentum 비중을 올릴수록 평균 수익은 계속 늘지만, 최악 구간(2017-19)
+방어력은 계속 깎임. 최악 구간이 마이너스로 전환되는 지점은 2.5:1~3:1 사이.
+
+**후보안**:
+- 방어 우선: momentum=2.5,reversal=1 — 5구간 전부 플러스 유지, 평균 53.9%
+  (momentum+low_vol(1:1) 기존안 평균 ~35.8%보다 훨씬 높음)
+- 수익 우선: momentum=4,reversal=1 — 평균 최고(56.1%)지만 최악 구간이 -6.8%로 다시
+  마이너스 (그래도 momentum 단독의 -26.7%보다는 훨씬 나음)
+
+**다음 TODO**: 2.5:1과 4:1 후보 중 하나를 확정하기 전에, BTCUSDT 프로젝트 때 쓴
+Go/No-Go 프레임워크 기준(permutation test, walk-forward)으로 유의성 검증 필요.
+지금까지는 구간당 단일 in/out split 결과일 뿐, 통계적 검증은 아직 안 됨.
