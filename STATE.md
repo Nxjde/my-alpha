@@ -73,3 +73,24 @@
 - [ ] 1:1 조합이 3-알파 조합(momentum+low_vol+neutral_momentum 등)으로 더 개선되는지 확인
 - [ ] rebalance 주기(5d→10d/20d) 조정 실험
 - [ ] 검증 완료되면 Alpaca/KIS 모의투자로 이동
+
+## [업데이트] reversal 알파 검증 — momentum과 거의 반대 패턴
+
+| 구간 | reversal | momentum(원본) | SPY |
+|---|---|---|---|
+| 2015~2017 | +29.8% | +31.4% | +31.0% |
+| 2017~2019 | **+127.3%** | -26.7% | +21.9% |
+| 2019~2021 | +40.9% | +84.4% | +56.3% |
+| 2021~2023 | +24.1% | +104.6% | +27.7% |
+| 2023~2025 | -4.9% | +113.5% | +27.3% |
+
+**핵심 발견: momentum이 최악이었던 2017~2019(-26.7%)에서 reversal은 최고(+127.3%), 
+momentum이 최고였던 2023~2025(+113.5%)에서 reversal은 유일하게 마이너스(-4.9%).
+momentum+low_vol보다 훨씬 강력한 헤지 관계로 보임 — 다음 세션에서 momentum+reversal 
+조합(다양한 비율)을 5구간 sweep으로 검증할 것.**
+
+### 다음 세션 시작 시 바로 할 일
+- [ ] `qanat backtest --alpha alpha_momentum,alpha_reversal --allocation momentum=1,reversal=1` 등으로 5구간 sweep
+- [ ] 이게 momentum+low_vol(1:1, 최선이었던 조합)보다 나은지 비교
+- [ ] 좋으면 3-알파 조합(momentum+reversal+low_vol)도 시도
+- [ ] neutral_momentum 알파도 아직 검증 안 됨 — 여유 되면 진행
