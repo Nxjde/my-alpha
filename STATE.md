@@ -190,3 +190,32 @@ steps are (a) out-of-sample paper validation going forward, (b) checking transac
 cost sensitivity, (c) considering whether the permutation methodology itself needs
 peer review (period-level gross-sign flipping is a reasonable but non-standard choice
 vs. trade-level permutation used in the BTCUSDT project).
+
+## Session update 3 (cost sensitivity check, momentum+reversal 1:1)
+
+Tested how robust the 1:1 combo is to transaction cost assumptions by recomputing net
+from cached turnover (fees/slippage = turnover * bps/10000), no backtest re-run needed.
+
+| cost scenario | 5-fold positive | p<0.05 folds |
+|---|---|---|
+| baseline (5bps fee / 10bps slippage) | 5/5 | 4/5 |
+| 1.5x (7.5/15bps) | 5/5 | 4/5 |
+| 2x (10/20bps) | 5/5 | 4/5 |
+| 3x (15/30bps) | 3/5 | 4/5 |
+| retail-worst-case (10bps fee/30bps slippage) | 3/5 | 4/5 |
+
+**Finding**: the combo tolerates up to 2x the baseline cost assumption while staying
+positive in all 5 folds. At 3x cost (or slippage alone spiking to 30bps), the two
+thinnest-margin regimes (2015-17, 2017-19) turn negative first — consistent with them
+being the same regimes the reversal hedge exists to protect. p-values stay roughly
+stable across cost scenarios (costs affect both real and permuted returns equally),
+so the *direction* of the edge is cost-independent even though the *magnitude* is not.
+
+**Conclusion**: momentum=1,reversal=1 is confirmed as the primary candidate — passes
+Go/No-Go, and holds up to 2x realistic transaction costs. Baseline cost assumptions
+(5bps/10bps) should still be validated against the actual broker's real fee/spread
+before live deployment, especially if the universe includes lower-liquidity names.
+
+**Next TODO**: (a) verify actual broker fee/spread against the 5bps/10bps baseline,
+(b) check universe for low-liquidity names that could see slippage spike well above
+30bps, (c) out-of-sample paper validation going forward.
