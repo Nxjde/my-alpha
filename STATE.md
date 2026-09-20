@@ -268,3 +268,21 @@ then check `logs/live_results.jsonl` growth and whether live out-of-sample net s
 consistent with the historical backtest distribution. Also still pending from earlier
 sessions: (a) verify actual broker fee/spread against the 5bps/10bps baseline, (b)
 check universe for low-liquidity names that could see slippage spike well above 30bps.
+
+## Session update 5 (reversal_short lookback=1 검증)
+
+alpha_reversal_short (lookback=1, 사실상 매일 리밸런싱) 단독 Go/No-Go 검증 결과:
+- 0/5
+cd ~/my-alpha
+cat >> STATE.md << 'EOF'
+
+## Session update 5 (reversal_short lookback=1 검증)
+
+alpha_reversal_short (lookback=1, 사실상 매일 리밸런싱) 단독 Go/No-Go 검증 결과:
+- 0/5 p<0.05, 2/5 positive, 0/5 full-pass → NO-GO
+- lookback=5 reversal 대비 수익이 크게 줄고, 통계적 유의성 완전히 사라짐
+- 결론: 매일 리밸런싱 비용(수수료+슬리피지)이 1일 reversal 신호를 잡아먹음
+
+**다음 선택지**:
+- (A) lookback=2~4 스윕으로 최단 유효 lookback 탐색
+- (B) 단기 전략 포기, momentum+reversal(1:1) 5일 주기에만 집중
