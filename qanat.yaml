@@ -137,5 +137,5 @@ backtest:
   embargo: 0d
   decay: 0
   split: '2025-09-11'
-  live: false
-  live_from: ''
+  live: true
+  live_from: '2026-09-18'

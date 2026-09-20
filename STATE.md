@@ -219,3 +219,52 @@ before live deployment, especially if the universe includes lower-liquidity name
 **Next TODO**: (a) verify actual broker fee/spread against the 5bps/10bps baseline,
 (b) check universe for low-liquidity names that could see slippage spike well above
 30bps, (c) out-of-sample paper validation going forward.
+
+## Session update 4 (paper validation automation set up)
+
+Set up daily automation to start accumulating true out-of-sample live results for the
+momentum=1,reversal=1 candidate:
+
+- Found and fixed a corrupted `data/real_prices.csv`: 2,939 rows (all of 2015-2026,
+  SPY only) had been appended earlier with a broken MultiIndex-column schema
+  (14 columns instead of 7, empty ts/symbol fields). Confirmed the corruption did NOT
+  affect any prior backtest results (only 1 stray row slipped through into
+  `normalized__prices`; 504 symbols and full date range were intact throughout).
+  `daily_update.py` now enforces a strict 7-column schema on every write, preventing
+  recurrence.
+- `daily_update.py`: pulls last 10 days of prices via yfinance, dedupes on
+  (ts, symbol), appends safely. Installed `cronie` (not present by default on this
+  AL2023 instance) and registered a crontab entry to run this
+cd ~/my-alpha
+cat >> STATE.md << 'EOF'
+
+## Session update 4 (paper validation automation set up)
+
+Set up daily automation to start accumulating true out-of-sample live results for the
+momentum=1,reversal=1 candidate:
+
+- Found and fixed a corrupted `data/real_prices.csv`: 2,939 rows (all of 2015-2026,
+  SPY only) had been appended earlier with a broken MultiIndex-column schema
+  (14 columns instead of 7, empty ts/symbol fields). Confirmed the corruption did NOT
+  affect any prior backtest results (only 1 stray row slipped through into
+  `normalized__prices`; 504 symbols and full date range were intact throughout).
+  `daily_update.py` now enforces a strict 7-column schema on every write, preventing
+  recurrence.
+- `daily_update.py`: pulls last 10 days of prices via yfinance, dedupes on
+  (ts, symbol), appends safely. Installed `cronie` (not present by default on this
+  AL2023 instance) and registered a crontab entry to run this daily at 08:00 KST.
+- `qanat.yaml` backtest block: `live: true`, `live_from: '2026-09-18'`, `split:
+  '2026-09-18'` (data was current through 2026-09-18 at setup time).
+- Crontab now runs, in sequence, daily at 08:00 KST: `daily_update.py` -> `qanat run`
+  (refresh pipeline) -> `qanat backtest` on momentum+reversal(1:1) with the fixed
+  split, appending JSON results to `logs/live_results.jsonl`.
+- Verified the full chain works end to end with a manual dry run (from 2025-01-01,
+  split 2026-09-18): 0 failures, in-sample net +82.5% over 124 periods, live/
+  out-of-sample correctly empty (0 periods) since no data exists past the split yet.
+  This is expected -- the count should start growing as new days accumulate.
+
+**Next TODO**: let this run for several weeks to accumulate genuine live periods,
+then check `logs/live_results.jsonl` growth and whether live out-of-sample net stays
+consistent with the historical backtest distribution. Also still pending from earlier
+sessions: (a) verify actual broker fee/spread against the 5bps/10bps baseline, (b)
+check universe for low-liquidity names that could see slippage spike well above 30bps.
