@@ -136,61 +136,6 @@ steps:
     lookback: 1
     top_n: 4
     reads: normalized.prices
-- id: alpha_reversal_lb2
-  from:
-  - normalized.prices
-  to:
-  - weights.reversal_lb2
-  script: steps/alpha_reversal_lb2.py
-  universe: sp500
-  options:
-    lookback: 2
-    top_n: 4
-    reads: normalized.prices
-- id: alpha_reversal_lb3
-  from:
-  - normalized.prices
-  to:
-  - weights.reversal_lb3
-  script: steps/alpha_reversal_lb3.py
-  universe: sp500
-  options:
-    lookback: 3
-    top_n: 4
-    reads: normalized.prices
-- id: alpha_reversal_lb4
-  from:
-  - normalized.prices
-  to:
-  - weights.reversal_lb4
-  script: steps/alpha_reversal_lb4.py
-  universe: sp500
-  options:
-    lookback: 4
-    top_n: 4
-    reads: normalized.prices
-- id: alpha_overnight_high
-  from:
-  - normalized.prices
-  to:
-  - weights.overnight_high
-  script: steps/alpha_overnight.py
-  universe: sp500
-  options:
-    top_n: 4
-    reads: normalized.prices
-    direction: high
-- id: alpha_overnight_low
-  from:
-  - normalized.prices
-  to:
-  - weights.overnight_low
-  script: steps/alpha_overnight.py
-  universe: sp500
-  options:
-    top_n: 4
-    reads: normalized.prices
-    direction: low
 backtest:
   prices: normalized.prices
   price_column: close
@@ -205,6 +150,3 @@ backtest:
   split: '2025-09-11'
   live: true
   live_from: '2026-09-18'
-  live_from: '2026-09-18'
-  live_alphas: [momentum, reversal]
-

@@ -1,0 +1,39 @@
+
+### rebalance=2d ###
+  running alpha_overnight_high (rebalance=2d): 2015-01-01~2017-12-31
+  running alpha_overnight_high (rebalance=2d): 2017-01-01~2019-12-31
+  running alpha_overnight_high (rebalance=2d): 2019-01-01~2021-12-31
+  running alpha_overnight_high (rebalance=2d): 2021-01-01~2023-12-31
+  running alpha_overnight_high (rebalance=2d): 2023-01-01~2025-12-31
+
+### rebalance=3d ###
+  running alpha_overnight_high (rebalance=3d): 2015-01-01~2017-12-31
+  running alpha_overnight_high (rebalance=3d): 2017-01-01~2019-12-31
+  running alpha_overnight_high (rebalance=3d): 2019-01-01~2021-12-31
+  running alpha_overnight_high (rebalance=3d): 2021-01-01~2023-12-31
+  running alpha_overnight_high (rebalance=3d): 2023-01-01~2025-12-31
+
+### rebalance=4d ###
+  running alpha_overnight_high (rebalance=4d): 2015-01-01~2017-12-31
+  running alpha_overnight_high (rebalance=4d): 2017-01-01~2019-12-31
+  running alpha_overnight_high (rebalance=4d): 2019-01-01~2021-12-31
+  running alpha_overnight_high (rebalance=4d): 2021-01-01~2023-12-31
+  running alpha_overnight_high (rebalance=4d): 2023-01-01~2025-12-31
+
+### rebalance=5d ###
+  running alpha_overnight_high (rebalance=5d): 2015-01-01~2017-12-31
+  running alpha_overnight_high (rebalance=5d): 2017-01-01~2019-12-31
+  running alpha_overnight_high (rebalance=5d): 2019-01-01~2021-12-31
+  running alpha_overnight_high (rebalance=5d): 2021-01-01~2023-12-31
+  running alpha_overnight_high (rebalance=5d): 2023-01-01~2025-12-31
+
+
+======================================================================
+최종 비교표 (overnight_high, rebalance 1d~5d)
+======================================================================
+rebalance  positive   p<0.05   pass   avg net    verdict
+1d         1/5       1/5     1/5   -0.2983   NO-GO
+2d         1/5       3/5     1/5   -0.1531   NO-GO
+3d         2/5       2/5     2/5   -0.0940   NO-GO
+4d         3/5       2/5     2/5   +0.1044   NO-GO
+5d         3/5       2/5     2/5   +0.2158   NO-GO

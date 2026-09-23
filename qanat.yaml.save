@@ -6,7 +6,7 @@ universes:
   symbols: ./universes/sp500.csv
 stages:
 - id: raw
-  kind: raw
+XG  kind: raw
   description: landed exactly as it arrived, never edited
 - id: normalized
   kind: features
@@ -205,6 +205,3 @@ backtest:
   split: '2025-09-11'
   live: true
   live_from: '2026-09-18'
-  live_from: '2026-09-18'
-  live_alphas: [momentum, reversal]
-

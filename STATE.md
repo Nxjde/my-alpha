@@ -286,3 +286,16 @@ alpha_reversal_short (lookback=1, 사실상 매일 리밸런싱) 단독 Go/No-Go
 **다음 선택지**:
 - (A) lookback=2~4 스윕으로 최단 유효 lookback 탐색
 - (B) 단기 전략 포기, momentum+reversal(1:1) 5일 주기에만 집중
+
+## Session update 6 (Qanat 0.2.0 업그레이드)
+
+- qanat-fdtl 0.1.3 -> 0.2.0 업그레이드 (pip install --user --upgrade qanat-fdtl)
+- 0.2.0 변경사항 중 해당 프로젝트에 영향 있던 버그: 알파가 2개 이상인 프로젝트에서
+  live scoring이 어떤 알파를 채점할지 못 정해 조용히 계속 실패 재시도하던 버그 ->
+  0.2.0부터 `live_alphas:`가 없으면 에러를 내고 멈추도록 변경됨
+- qanat.yaml backtest 블록에 `live_alphas: [momentum, reversal]` 추가
+- 수동 검증: daily_update.py -> qanat run -> qanat backtest 전체 체인 에러 없이 통과,
+  logs/live_results.jsonl에 2026-09-21까지 정상 반영 확인 (failures: [])
+- 크론탭(08:00 KST 자동 실행)은 변경 없이 그대로 유지, 정상 작동 확인
+
+**다음 단계**: momentum+reversal(1:1) 모의투자(paper trading) 연결 착수

@@ -1,0 +1,15 @@
+nohup: ignoring input
+
+### overnight_high (갭업 매수) ###
+  실행 중: alpha_overnight_high ...
+  out-of-sample n=377
+  gross(비용 전) 누적수익 = +2.4639
+  net(비용 후)  누적수익 = +0.1703
+  구간당 평균 비용        = 0.00288
+
+### overnight_low (갭다운 매수) ###
+  실행 중: alpha_overnight_low ...
+  out-of-sample n=377
+  gross(비용 전) 누적수익 = -0.1063
+  net(비용 후)  누적수익 = -0.7050
+  구간당 평균 비용        = 0.00293

@@ -1,0 +1,92 @@
+nohup: ignoring input
+
+### lookback=1 / 1d (alpha_reversal_short, rebalance=1d) ###
+  구간 1/5: 캐시 사용
+  구간 2/5: 캐시 사용
+  구간 3/5: 캐시 사용
+  구간 4/5: 캐시 사용
+  running alpha_reversal_short (rebalance=1d): 2023-01-01~2025-12-31
+
+### lookback=2 / 2d (alpha_reversal_lb2, rebalance=2d) ###
+  running alpha_reversal_lb2 (rebalance=2d): 2015-01-01~2017-12-31
+  running alpha_reversal_lb2 (rebalance=2d): 2017-01-01~2019-12-31
+  running alpha_reversal_lb2 (rebalance=2d): 2019-01-01~2021-12-31
+  running alpha_reversal_lb2 (rebalance=2d): 2021-01-01~2023-12-31
+  running alpha_reversal_lb2 (rebalance=2d): 2023-01-01~2025-12-31
+
+### lookback=3 / 3d (alpha_reversal_lb3, rebalance=3d) ###
+  running alpha_reversal_lb3 (rebalance=3d): 2015-01-01~2017-12-31
+  running alpha_reversal_lb3 (rebalance=3d): 2017-01-01~2019-12-31
+  running alpha_reversal_lb3 (rebalance=3d): 2019-01-01~2021-12-31
+  running alpha_reversal_lb3 (rebalance=3d): 2021-01-01~2023-12-31
+  running alpha_reversal_lb3 (rebalance=3d): 2023-01-01~2025-12-31
+
+### lookback=4 / 4d (alpha_reversal_lb4, rebalance=4d) ###
+  running alpha_reversal_lb4 (rebalance=4d): 2015-01-01~2017-12-31
+  running alpha_reversal_lb4 (rebalance=4d): 2017-01-01~2019-12-31
+  running alpha_reversal_lb4 (rebalance=4d): 2019-01-01~2021-12-31
+  running alpha_reversal_lb4 (rebalance=4d): 2021-01-01~2023-12-31
+  running alpha_reversal_lb4 (rebalance=4d): 2023-01-01~2025-12-31
+
+### lookback=5 / 5d (기존 baseline) (alpha_reversal, rebalance=5d) ###
+  running alpha_reversal (rebalance=5d): 2015-01-01~2017-12-31
+  running alpha_reversal (rebalance=5d): 2017-01-01~2019-12-31
+  running alpha_reversal (rebalance=5d): 2019-01-01~2021-12-31
+  running alpha_reversal (rebalance=5d): 2021-01-01~2023-12-31
+  running alpha_reversal (rebalance=5d): 2023-01-01~2025-12-31
+
+
+======================================================================
+Go/No-Go 결과 (lookback==rebalance 매칭, gross-only permutation)
+======================================================================
+
+########## lookback=1 / 1d ##########
+  2015-01-01~2017-12-31: n=377, net=-0.3975, p=0.0105 -> FAIL
+  2017-01-01~2019-12-31: n=378, net=-0.5928, p=0.2530 -> FAIL
+  2019-01-01~2021-12-31: n=379, net=-0.6176, p=0.3070 -> FAIL
+  2021-01-01~2023-12-31: n=376, net=-0.6280, p=0.3395 -> FAIL
+  2023-01-01~2025-12-31: n=0 표본 부족 SKIP
+  요약: 0/5 positive, 1/5 p<0.05, 0/5 full-pass, 평균 net=-0.4472 -> 판정: NO-GO
+
+########## lookback=2 / 2d ##########
+  2015-01-01~2017-12-31: n=231, net=-0.2507, p=0.0980 -> FAIL
+  2017-01-01~2019-12-31: n=230, net=-0.3703, p=0.3205 -> FAIL
+  2019-01-01~2021-12-31: n=229, net=-0.1265, p=0.0905 -> FAIL
+  2021-01-01~2023-12-31: n=228, net=-0.1813, p=0.1585 -> FAIL
+  2023-01-01~2025-12-31: n=228, net=+0.0897, p=0.0505 -> 유의성 부족
+  요약: 1/5 positive, 0/5 p<0.05, 0/5 full-pass, 평균 net=-0.1678 -> 판정: NO-GO
+
+########## lookback=3 / 3d ##########
+  2015-01-01~2017-12-31: n=179, net=+0.2015, p=0.0050 -> PASS
+  2017-01-01~2019-12-31: n=179, net=-0.2159, p=0.2425 -> FAIL
+  2019-01-01~2021-12-31: n=180, net=-0.0079, p=0.0925 -> FAIL
+  2021-01-01~2023-12-31: n=178, net=+0.2862, p=0.0685 -> 유의성 부족
+  2023-01-01~2025-12-31: n=179, net=-0.1590, p=0.2310 -> FAIL
+  요약: 2/5 positive, 1/5 p<0.05, 1/5 full-pass, 평균 net=+0.0210 -> 판정: NO-GO
+
+########## lookback=4 / 4d ##########
+  2015-01-01~2017-12-31: n=136, net=+0.1157, p=0.0235 -> PASS
+  2017-01-01~2019-12-31: n=136, net=+0.1047, p=0.1285 -> 유의성 부족
+  2019-01-01~2021-12-31: n=136, net=+0.5323, p=0.0135 -> PASS
+  2021-01-01~2023-12-31: n=136, net=-0.2656, p=0.3910 -> FAIL
+  2023-01-01~2025-12-31: n=136, net=-0.1381, p=0.2515 -> FAIL
+  요약: 3/5 positive, 2/5 p<0.05, 2/5 full-pass, 평균 net=+0.0698 -> 판정: NO-GO
+
+########## lookback=5 / 5d (기존 baseline) ##########
+  2015-01-01~2017-12-31: n=109, net=+0.2980, p=0.0100 -> PASS
+  2017-01-01~2019-12-31: n=108, net=+1.2733, p=0.0015 -> PASS
+  2019-01-01~2021-12-31: n=109, net=+0.4086, p=0.0310 -> PASS
+  2021-01-01~2023-12-31: n=108, net=+0.2412, p=0.1060 -> 유의성 부족
+  2023-01-01~2025-12-31: n=109, net=-0.0487, p=0.2320 -> FAIL
+  요약: 4/5 positive, 3/5 p<0.05, 3/5 full-pass, 평균 net=+0.4345 -> 판정: NO-GO
+
+
+======================================================================
+최종 비교표
+======================================================================
+candidate                    positive   p<0.05   pass   avg net    verdict
+lookback=1 / 1d              0/5       1/5     0/5   -0.4472   NO-GO
+lookback=2 / 2d              1/5       0/5     0/5   -0.1678   NO-GO
+lookback=3 / 3d              2/5       1/5     1/5   +0.0210   NO-GO
+lookback=4 / 4d              3/5       2/5     2/5   +0.0698   NO-GO
+lookback=5 / 5d (기존 baseline) 4/5       3/5     3/5   +0.4345   NO-GO
