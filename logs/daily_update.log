@@ -1,0 +1,56 @@
+기존 데이터: 1429802행, 504개 종목, 마지막 날짜 2026-09-18
+새로 받은 데이터: 5040행 (2026-09-04~2026-09-18), 건너뜀 0개
+중복 제거: 1434842행 -> 1429802행
+저장 완료: data/real_prices.csv, 최종 마지막 날짜 2026-09-18
+StoreBusy: /home/ec2-user/my-alpha/data/qanat.duckdb is already open in another process.
+  A DuckDB file takes one writer at a time, so the console, the CLI and an
+  agent cannot each open it. Pick one door:
+    · stop `qanat serve`, then run this again, or
+    · keep the console and drive it from there, or
+    · start `qanat mcp` first and ask the agent to open_console. One process
+      serves both, or
+    · move the project to Postgres (`qanat init --postgres`), which takes many
+기존 데이터: 1429802행, 504개 종목, 마지막 날짜 2026-09-18
+새로 받은 데이터: 5040행 (2026-09-04~2026-09-18), 건너뜀 0개
+중복 제거: 1434842행 -> 1429802행
+저장 완료: data/real_prices.csv, 최종 마지막 날짜 2026-09-18
+StoreBusy: /home/ec2-user/my-alpha/data/qanat.duckdb is already open in another process.
+  A DuckDB file takes one writer at a time, so the console, the CLI and an
+  agent cannot each open it. Pick one door:
+    · stop `qanat serve`, then run this again, or
+    · keep the console and drive it from there, or
+    · start `qanat mcp` first and ask the agent to open_console. One process
+      serves both, or
+    · move the project to Postgres (`qanat init --postgres`), which takes many
+기존 데이터: 1429802행, 504개 종목, 마지막 날짜 2026-09-18
+새로 받은 데이터: 5039행 (2026-09-08~2026-09-21), 건너뜀 0개
+중복 제거: 1434841행 -> 1430305행
+저장 완료: data/real_prices.csv, 최종 마지막 날짜 2026-09-21
+StoreBusy: /home/ec2-user/my-alpha/data/qanat.duckdb is already open in another process.
+  A DuckDB file takes one writer at a time, so the console, the CLI and an
+  agent cannot each open it. Pick one door:
+    · stop `qanat serve`, then run this again, or
+    · keep the console and drive it from there, or
+    · start `qanat mcp` first and ask the agent to open_console. One process
+      serves both, or
+    · move the project to Postgres (`qanat init --postgres`), which takes many
+
+  ok  daily_prices           1,430,305 rows -> raw.daily_prices
+  ok  news                   57 rows -> raw.news
+  ok  normalize              1,430,305 rows -> normalized.prices
+  ok  tone                   8 rows -> features.tone
+  ok  momentum               504 rows -> features.momentum
+  ok  risk                   504 rows -> features.risk
+  ok  alpha_momentum         4 rows -> weights.momentum
+  ok  alpha_reversal         4 rows -> weights.reversal
+  ok  alpha_low_vol          4 rows -> weights.low_vol
+  ok  alpha_neutral_momentum 504 rows -> weights.neutral_momentum
+  ok  alpha_reversal_short   4 rows -> weights.reversal_short
+  ok  alpha_reversal_lb2     4 rows -> weights.reversal_lb2
+  ok  alpha_reversal_lb3     4 rows -> weights.reversal_lb3
+  ok  alpha_reversal_lb4     4 rows -> weights.reversal_lb4
+  ok  alpha_overnight_high   4 rows -> weights.overnight_high
+  ok  alpha_overnight_low    4 rows -> weights.overnight_low
+  ok  portfolio              4 rows -> weights.target
+
+17/17 ok
