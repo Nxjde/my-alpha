@@ -54,3 +54,51 @@ StoreBusy: /home/ec2-user/my-alpha/data/qanat.duckdb is already open in another 
   ok  portfolio              4 rows -> weights.target
 
 17/17 ok
+기존 데이터: 1430306행, 504개 종목, 마지막 날짜 2026-09-21
+새로 받은 데이터: 4537행 (2026-09-09~2026-09-22), 건너뜀 0개
+중복 제거: 1434843행 -> 1430307행
+저장 완료: data/real_prices.csv, 최종 마지막 날짜 2026-09-22
+
+  ok  daily_prices           1,430,307 rows -> raw.daily_prices
+  ok  news                   57 rows -> raw.news
+  ok  normalize              1,430,307 rows -> normalized.prices
+  ok  tone                   8 rows -> features.tone
+  ok  momentum               504 rows -> features.momentum
+  ok  risk                   504 rows -> features.risk
+  ok  alpha_momentum         4 rows -> weights.momentum
+  ok  alpha_reversal         4 rows -> weights.reversal
+  ok  alpha_low_vol          4 rows -> weights.low_vol
+  ok  alpha_neutral_momentum 504 rows -> weights.neutral_momentum
+  ok  alpha_reversal_short   4 rows -> weights.reversal_short
+  ok  alpha_reversal_lb2     4 rows -> weights.reversal_lb2
+  ok  alpha_reversal_lb3     4 rows -> weights.reversal_lb3
+  ok  alpha_reversal_lb4     4 rows -> weights.reversal_lb4
+  ok  alpha_overnight_high   4 rows -> weights.overnight_high
+  ok  alpha_overnight_low    4 rows -> weights.overnight_low
+  ok  portfolio              4 rows -> weights.target
+
+17/17 ok
+기존 데이터: 1430307행, 504개 종목, 마지막 날짜 2026-09-22
+새로 받은 데이터: 4597행 (2026-09-10~2026-09-23), 건너뜀 0개
+중복 제거: 1434904행 -> 1430871행
+저장 완료: data/real_prices.csv, 최종 마지막 날짜 2026-09-23
+
+  ok  daily_prices           1,430,871 rows -> raw.daily_prices
+  ok  news                   57 rows -> raw.news
+  ok  normalize              1,430,871 rows -> normalized.prices
+  ok  tone                   8 rows -> features.tone
+  ok  momentum               504 rows -> features.momentum
+  ok  risk                   504 rows -> features.risk
+  ok  alpha_momentum         4 rows -> weights.momentum
+  ok  alpha_reversal         4 rows -> weights.reversal
+  ok  alpha_low_vol          4 rows -> weights.low_vol
+  ok  alpha_neutral_momentum 504 rows -> weights.neutral_momentum
+  ok  alpha_reversal_short   4 rows -> weights.reversal_short
+  ok  alpha_reversal_lb2     4 rows -> weights.reversal_lb2
+  ok  alpha_reversal_lb3     4 rows -> weights.reversal_lb3
+  ok  alpha_reversal_lb4     4 rows -> weights.reversal_lb4
+  ok  alpha_overnight_high   4 rows -> weights.overnight_high
+  ok  alpha_overnight_low    4 rows -> weights.overnight_low
+  ok  portfolio              4 rows -> weights.target
+
+17/17 ok

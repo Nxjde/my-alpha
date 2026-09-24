@@ -299,3 +299,21 @@ alpha_reversal_short (lookback=1, 사실상 매일 리밸런싱) 단독 Go/No-Go
 - 크론탭(08:00 KST 자동 실행)은 변경 없이 그대로 유지, 정상 작동 확인
 
 **다음 단계**: momentum+reversal(1:1) 모의투자(paper trading) 연결 착수
+
+## Session update 7 (KIS 모의투자 연결, 첫 리밸런싱 실행)
+
+- KIS Developers에서 App Key/Secret 발급, 모의투자 계좌 연결 (CANO=50213721, ACNT_PRDT_CD=01)
+- kis_client.py 작성: 토큰 캐싱(.kis_token_cache.json), 해외주식 잔고/현금/시세 조회,
+  지정가 주문. 모든 호출에 공통 재시도(3회, 1s/2s 백오프) 적용 -- 모의투자 서버가
+  간헐적으로 500을 뱉는 게 관찰돼서 필요했음
+- rebalance_paper.py 작성: data/qanat.duckdb의 weights__momentum, weights__reversal
+  최신 as_of를 읽어 qanat.backtest.combine()과 동일한 로직(0.5/0.5 섞고 재정규화)으로
+  목표 포트폴리오 계산 -> 현재 보유와 diff -> 최소거래금액($5) 이상만 주문
+- 실제 duckdb 스키마는 `weights.<name>`이 아니라 `main.weights__<name>` (이중언더스코어)
+  였음 -- 이후 유사 스크립트 작성 시 참고
+- 종목별 거래소(NASDAQ/NYSE/AMEX)는 자동 판별 후 캐싱 (S&P500엔 나스닥 외 종목도 섞여있음)
+- 2026-09-24 기준 8종목(momentum 4 + reversal 4, 겹침 없음) 전량 매수 체결 완료.
+  초기 $100,000 중 $87,389 현금 + $12,460 보유평가로 배분
+
+**다음 단계**: 며칠 뒤 리밸런싱 주기(20d 등 알파 rebalance 설정)에 맞춰 재실행 필요,
+cron에 rebalance_paper.py 자동 실행 추가 여부 결정 필요
