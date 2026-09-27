@@ -317,3 +317,39 @@ alpha_reversal_short (lookback=1, 사실상 매일 리밸런싱) 단독 Go/No-Go
 
 **다음 단계**: 며칠 뒤 리밸런싱 주기(20d 등 알파 rebalance 설정)에 맞춰 재실행 필요,
 cron에 rebalance_paper.py 자동 실행 추가 여부 결정 필요
+
+## 세션 업데이트 (momentum+reversal 비율 스윕 — Deflated Sharpe Ratio 검증)
+
+**목적**: 이전 세션에서 나온 momentum:reversal 비율 스윕(1:1~4:1) 결과가 "6개 후보 중
+가장 좋아 보이는 걸 골랐다"는 선택편향(multiple testing) 문제를 갖고 있어, López de Prado의
+Deflated Sharpe Ratio(DSR)로 재검증함.
+
+**방법**: 6개 비율(1:1, 2:1, 2.5:1, 3:1, 3.5:1, 4:1) × 4구간(2017-19, 2019-21, 2021-23,
+2023-25)의 out-of-sample 리밸런싱 수익률(5일 주기)을 이어붙여 비율별 434개 관측치로
+Sharpe·왜도·첨도를 계산하고, 6-trial 선택편향을 보정한 DSR을 산출함 (`dsr_sweep_resume.py`,
+`dsr_calc.py`, 원본 pnl은 `sweep_exports/*.csv`에 보존).
+
+**결과**:
+
+| 비율 | out-of-sample Sharpe | DSR |
+|---|---|---|
+| 1:1 | 0.1257 | 0.9945 |
+| 2:1 | 0.1238 | 0.9937 |
+| 2.5:1 | 0.1224 | 0.9931 |
+| 3:1 | 0.1211 | 0.9926 |
+| 3.5:1 | 0.1200 | 0.9921 |
+| 4:1 | 0.1191 | 0.9916 |
+
+6개 비율 모두 DSR 0.99 이상 — 선택편향을 보정해도 momentum+reversal 조합은 통계적으로
+강건한 알파임을 확인함. 또한 Sharpe 기준으로도 1:1이 6개 중 가장 우수(momentum 비중을
+올릴수록 out-of-sample Sharpe가 단조 감소)해, 이전에 "최악 레짐 방어력" 기준으로 선택했던
+1:1이 위험조정수익 기준으로도 최선임이 재확인됨.
+
+**결론**: 1:1 비율(현재 KIS 모의투자 라이브 설정)을 최종 확정.
+
+**인프라 메모**: 이번 스윕 과정에서 `qanat.duckdb`가 반복된 `--force` 백테스트로 16GB까지
+재차 부풀어(과거 19GB 이슈와 동일 패턴) EXPORT/IMPORT로 104MB까지 재압축함. 2코어(t3.small)
+한계 내에서 프로젝트 폴더를 reflink 복제(`cp --reflink=auto`)해 2-워커 병렬 처리로 스윕
+시간을 단축함. 향후 대규모 스윕 시 (1) 사전에 `qanat.duckdb` 크기 점검, (2) 프로세스는
+반드시 `nohup ... & disown`으로 완전히 분리해 실행할 것 (tmux 세션 내 직접 실행도
+안전하지만, Ctrl+C 등 시그널이 실수로 자식 프로세스에 전달되면 조용히 죽을 수 있음을 확인).
