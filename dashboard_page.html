@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>my-alpha Research Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+body{font-family:-apple-system,sans-serif;background:#111;color:#eee;margin:0;padding:24px;}
+h1{font-size:20px;margin:0 0 16px;}
+.cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.card{background:#1c1c1c;border:1px solid #333;border-radius:10px;padding:14px 20px;min-width:110px;cursor:pointer;text-align:center;}
+.card.active{border-color:#3b82f6;}
+.card .n{font-size:30px;font-weight:700;} .card .t{font-size:12px;color:#999;margin-top:2px;}
+.go{color:#4ade80;} .nogo{color:#f87171;} .hold{color:#fbbf24;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;}
+th,td{border-bottom:1px solid #2c2c2c;padding:9px 10px;text-align:left;vertical-align:top;}
+th{color:#999;font-weight:600;} tr.row{cursor:pointer;} tr.row:hover{background:#1a1a1a;}
+tr.sup td{opacity:.55;}
+.badge{font-weight:700;} .small{color:#888;font-size:12px;}
+.back{cursor:pointer;color:#3b82f6;font-size:13px;margin-bottom:12px;display:inline-block;}
+.box{background:#171717;border:1px solid #2a2a2a;border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.6;}
+.btn{display:inline-block;padding:6px 12px;margin:0 6px 8px 0;border:1px solid #333;border-radius:6px;cursor:pointer;font-size:12px;}
+.btn.on{background:#3b82f6;border-color:#3b82f6;}
+.charts{display:flex;gap:16px;flex-wrap:wrap;} .charts>div{flex:1;min-width:300px;background:#171717;border-radius:8px;padding:12px;}
+textarea{width:100%;box-sizing:border-box;background:#1c1c1c;color:#eee;border:1px solid #333;border-radius:6px;padding:10px;font-size:14px;min-height:70px;}
+button{background:#3b82f6;color:#fff;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:14px;margin-top:8px;}
+.req{padding:8px 0;border-bottom:1px solid #2a2a2a;font-size:13px;}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ccc;}
+</style></head><body>
+<h1>my-alpha Research Dashboard</h1>
+<div class="cards" id="cards"></div>
+<div id="list-view">
+<div class="small" id="filter-note" style="margin-bottom:10px"></div>
+<table><thead><tr><th>아이디어</th><th>판정</th><th>방법</th><th>이유</th></tr></thead><tbody id="rows"></tbody></table>
+</div>
+<div id="detail-view" style="display:none"></div>
+<h2 style="font-size:15px;margin-top:28px;">다음 방향 요청</h2>
+<textarea id="req-text" placeholder="예: reversal lookback을 3일로 바꿔서 다시 검증해줘"></textarea><br>
+<button id="submit-btn">요청 제출</button>
+<h2 style="font-size:15px;margin-top:24px;">요청 큐</h2><div id="req-list"></div>
+<script src="/app.js"></script>
+</body></html>
