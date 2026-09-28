@@ -1,0 +1,44 @@
+{
+  "folds": [
+    {
+      "period": "2015-2017",
+      "n": 178,
+      "net": -0.0214,
+      "p": 0.052,
+      "passed": false
+    },
+    {
+      "period": "2017-2019",
+      "n": 181,
+      "net": 0.3495,
+      "p": 0.0265,
+      "passed": true
+    },
+    {
+      "period": "2019-2021",
+      "n": 180,
+      "net": -0.0079,
+      "p": 0.0925,
+      "passed": false
+    },
+    {
+      "period": "2021-2023",
+      "n": 178,
+      "net": 0.215,
+      "p": 0.0625,
+      "passed": false
+    },
+    {
+      "period": "2023-2025",
+      "n": 179,
+      "net": -0.159,
+      "p": 0.231,
+      "passed": false
+    }
+  ],
+  "n_positive": 2,
+  "n_significant": 1,
+  "n_full_pass": 1,
+  "avg_net": 0.0752,
+  "verdict": "NO-GO"
+}

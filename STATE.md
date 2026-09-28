@@ -353,3 +353,24 @@ Sharpe·왜도·첨도를 계산하고, 6-trial 선택편향을 보정한 DSR을
 시간을 단축함. 향후 대규모 스윕 시 (1) 사전에 `qanat.duckdb` 크기 점검, (2) 프로세스는
 반드시 `nohup ... & disown`으로 완전히 분리해 실행할 것 (tmux 세션 내 직접 실행도
 안전하지만, Ctrl+C 등 시그널이 실수로 자식 프로세스에 전달되면 조용히 죽을 수 있음을 확인).
+
+## 세션 정리 (9/26~9/28): DSR 검증 · 오버레이 탐색 · 리서치 자동화 구축
+
+**확정**
+- momentum:reversal 1:1 유지. 6개 비율(1:1~4:1) 스윕 DSR 모두 0.99 이상, out-of-sample Sharpe도 1:1이 최선(0.1257).
+- 단, 이 DSR은 이번 스윕 6개만 기준으로 계산함. 프로젝트 전체 누적 시도 횟수(vol targeting 21+21조합, 헤지 후보 3종, lookback 실험 등)는 반영 안 됨 -> 실제 DSR은 이보다 낮을 수 있음.
+- KIS 해외주식(미국)은 매매증거금 100%라 레버리지 불가. 레버리지 오버레이는 배제.
+
+**기각 (research_log.jsonl 참조)**
+- 헤지/분산 소스: low_vol, overnight_high, reversal_short 모두 momentum+reversal과 양의 상관 + 단독 수익 부진 -> NO-GO.
+- reversal lookback=2, lookback=3(rebalance 3d) 단독 검증: 5구간 중 net>0가 각각 1개, 2개 -> NO-GO.
+
+**보류 (채택 전 추가 검증 필요)**
+- vol targeting(target_mult=0.7, 레버리지 없음) + 유휴자금 RP(연 3.35%): avg_net 38.1%, Sharpe 0.1314, worst MDD -19.2% (baseline 49.1% / 0.1250 / -29.5%). 위험조정수익 기준으론 유망하나 목표변동성 배수(0.6/0.8) 안정성과 누적 M 반영 DSR 확인 전까지 미채택.
+- 주의: 초기 장부에 RP 수치가 low_vol 값(0.1248 / -22.7%)으로 잘못 기록됐다가 정정 항목으로 바로잡음. 장부는 append-only.
+
+**인프라**
+- 리서치 자동화: EC2 Flask 대시보드 + Windows Electron 앱 + research_worker.py(Claude Code 헤드리스). 권한은 .claude/settings.json(allow/deny) + hooks/guard_bash.py(git push, nohup/&, run_in_background, 실계좌 관련 차단).
+- qanat.duckdb는 --force 반복 실행으로 dead page가 쌓여 5.3GB까지 부풀었다가 EXPORT/IMPORT로 약 100MB로 압축. 대규모 스윕 뒤에는 크기를 점검하고 재압축할 것.
+- 서버 시간대는 UTC (크론 0 8 * * * = 17:00 KST).
+- 워커 교훈: 타임아웃 2시간에 죽은 원인은 요청 밖 구간을 추가로 돌린 것. 프롬프트에 범위 제한과 구간별 중간 기록 규칙 추가함.

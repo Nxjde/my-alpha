@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(qanat backtest:*)",
+      "Bash(qanat run:*)",
+      "Bash(nohup qanat backtest:*)",
+      "Bash(nohup qanat run:*)",
+      "Bash(python3.11:*)",
+      "Bash(python3:*)",
+      "Bash(nohup python3.11:*)",
+      "Bash(nohup python3:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(pgrep:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(sleep:*)",
+      "Bash(ps:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git commit --amend:*)",
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(*daily_update.py*)",
+      "Bash(*live_results*)",
+      "Bash(*.pem*)",
+      "Bash(*AWS.pem*)",
+      "Read(*.pem)",
+      "Read(**/AWS.pem)",
+      "Bash(*credential*)",
+      "Bash(*ghp_*)",
+      "Bash(*github_pat_*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3.11 .claude/hooks/guard_bash.py"
+          }
+        ]
+      }
+    ]
+  }
+}

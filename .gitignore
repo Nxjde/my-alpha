@@ -8,3 +8,8 @@ full_output.txt
 /tmp/*.txt
 .env
 .kis_token_cache.json
+data/
+requests.jsonl
+worker.log
+nohup.out
+*.pem
