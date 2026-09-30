@@ -34,7 +34,16 @@
       "Read(**/AWS.pem)",
       "Bash(*credential*)",
       "Bash(*ghp_*)",
-      "Bash(*github_pat_*)"
+      "Bash(*github_pat_*)",
+      "Bash(*rebalance_paper*)",
+      "Bash(*kis_client*)",
+      "Bash(*.env*)",
+      "Read(**/.env)",
+      "Bash(*last_rebalance*)",
+      "Bash(*paper_rebalance*)",
+      "Bash(*crontab*)",
+      "Bash(*.kis_token_cache*)",
+      "Read(**/.kis_token_cache.json)"
     ]
   },
   "hooks": {
