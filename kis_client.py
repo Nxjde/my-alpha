@@ -192,7 +192,7 @@ def place_overseas_order(
     price: 지정가. 모의투자는 시장가 주문이 안 되는 경우가 많아 지정가로 넣고,
            체결 확률을 높이려면 현재가에서 buy는 살짝 위, sell은 살짝 아래로 걸 것.
     """
-    tr_id = "VTTT1002U" if side == "buy" else "VTTT1006U"  # 모의투자 매수/매도
+    tr_id = "VTTT1002U" if side == "buy" else "VTTT1001U"  # 모의투자 매수/매도
     return _request_with_retry(
         "POST",
         f"{BASE_URL}/uapi/overseas-stock/v1/trading/order",
